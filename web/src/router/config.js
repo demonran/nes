@@ -35,6 +35,14 @@ const options = {
           component: () => import('@/pages/demo')
         },
         {
+          path: 'customer',
+          name: '客户',
+          meta: {
+            icon: 'file-ppt'
+          },
+          component: () => import('@/pages/customer')
+        },
+        {
           path: 'parent1',
           name: '父级路由1',
           meta: {

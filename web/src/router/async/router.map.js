@@ -39,6 +39,11 @@ const routerMap = {
     redirect: '/login',
     component: view.tabs
   },
+  customer: {
+    name: '客户',
+    icon: 'dashboard',
+    component: view.page
+  },
   parent1: {
     name: '父级路由1',
     icon: 'dashboard',
