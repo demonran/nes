@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -12,8 +13,14 @@ type Conf struct {
 }
 
 type Database struct {
-	Host string `yaml:"host"`
-	Name string `yaml:"name"`
+	Host     string `yaml:"host"`
+	Name     string `yaml:"name"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+}
+
+func (db *Database) Source() string {
+	return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", db.User, db.Password, db.Host, db.Name)
 }
 
 var (
@@ -25,7 +32,7 @@ func init() {
 	flag.Parse()
 }
 
-func GetConfig(conf *Conf) {
+func GetConfig(conf interface{}) {
 	buf, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		panic(err)

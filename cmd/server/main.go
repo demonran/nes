@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"nes/app"
 	"nes/assets"
 	"nes/config"
-	"nes/internal/customer"
 )
 
 func main() {
@@ -16,8 +16,7 @@ func main() {
 
 	e := echo.New()
 
-	e.POST("/customers", customer.CreateCustomer)
-	e.GET("/customers", customer.GetCustomer)
+	app.Init(e, conf)
 
 	e.StaticFS("/", assets.FileSystem)
 
