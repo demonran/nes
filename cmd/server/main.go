@@ -6,6 +6,8 @@ import (
 	"nes/app"
 	"nes/assets"
 	"nes/config"
+
+	mw "github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -15,6 +17,11 @@ func main() {
 	config.GetConfig(conf)
 
 	e := echo.New()
+
+	e.Use(mw.CORSWithConfig(mw.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAcceptEncoding, echo.HeaderAuthorization},
+	}))
 
 	app.Init(e, conf)
 
