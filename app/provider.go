@@ -15,4 +15,5 @@ func Init(ec *echo.Echo, conf *config.Conf) {
 	}
 	g := ec.Group("/api")
 	ep.InitCustomerRouter(g)
+	ep.InitEvaluationRouter(g)
 }
