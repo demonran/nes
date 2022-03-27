@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+APP_NAME=nes
+APP_PORT=8080
+
+CI_COMMIT_SHA=$(git log -n 1 --pretty=format:'%h')
+
+DOCKER_REGISTRY_SERVER=registry.cn-chengdu.aliyuncs.com/lura
+DOCKER_IMAGE=${DOCKER_REGISTRY_SERVER}/${APP_NAME}:build-${CI_COMMIT_SHA}
+
+upload() {
+  username=$1
+  password=$2
+   echo "${password}" |sudo docker login --username="${username}"  registry.cn-chengdu.aliyuncs.com --password-stdin
+   sudo docker build -t ${DOCKER_IMAGE} .
+   sudo docker push ${DOCKER_IMAGE}
+   sudo docker rmi ${DOCKER_IMAGE}
+}
+
+deploy() {
+  ENV=${1:-sit}
+  NAMESPACE=${1:-default}
+
+  kubectl create namespace "$NAMESPACE" || true
+  cat deployment/deployment.yml | \
+        sed "s#\$ENV#$ENV#g" | \
+        sed "s#\$NAMESPACE#$NAMESPACE#g" | \
+        sed "s#\$APP_NAME#$APP_NAME#g" | \
+        sed "s#\$APP_PORT#$APP_PORT#g" | \
+        sed "s#\$DOCKER_IMAGE#$DOCKER_IMAGE#g" | \
+        sudo kubectl apply -f -
+  sudo kubectl rollout status deployment/$APP_NAME -n "$NAMESPACE" --timeout 600s
+}
+
+case $1 in
+ upload )
+   $1 $2 $3;;
+ deploy )
+   $1 $2 $3;;
+ * )
+   echo "not support!!! example: ./ci <upload|deploy>"
+   exit 1;;
+esac

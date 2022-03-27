@@ -1,0 +1,91 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: $APP_NAME-ingress
+  namespace: $NAMESPACE
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+    - host: $APP_NAME.$ENV.yumimiao.cn
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: $APP_NAME-svc
+                port:
+                  number: $APP_PORT
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $APP_NAME
+  namespace: $NAMESPACE
+  labels:
+    app: $APP_NAME
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: $APP_NAME
+  template:
+    metadata:
+      labels:
+        app: $APP_NAME
+    spec:
+      imagePullSecrets:
+      - name: aliyun-docker-registry
+      containers:
+        - name: $APP_NAME
+          imagePullPolicy: Always
+          image: $DOCKER_IMAGE
+          env:
+            - name: APPLICATION_ENV
+              value: $ENV
+            - name: IOT_PLATFORM_HTTP_PORT
+              value: "$APP_PORT"
+            - name: IOT_PLATFORM_TCP_PORT
+              value: "$APP_TCP_PORT"
+          readinessProbe:
+            httpGet:
+              path: /api/ping
+              port: $APP_PORT
+            failureThreshold: 10
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/dm/ping
+              port: $APP_PORT
+            failureThreshold: 10
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          ports:
+            - containerPort: $APP_PORT
+              protocol: TCP
+
+#      tolerations:
+#        - key: node-role.kubernetes.io/master
+#          effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $APP_NAME-svc
+  namespace: $NAMESPACE
+  labels:
+    app: $APP_NAME-svc
+spec:
+  ports:
+    - port: $APP_PORT
+      name: http
+      targetPort: $APP_PORT
+  selector:
+    app: $APP_NAME
+  type: ClusterIP
+
