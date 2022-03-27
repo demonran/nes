@@ -21,6 +21,14 @@ const options = {
       component: () => import('@/pages/exception/403'),
     },
     {
+      path: 'user/evaluation',
+      name: '用户表单录入',
+      meta: {
+        icon: 'file-ppt',
+      },
+      component: () => import('@/pages/user/evaluation-form'),
+    },
+    {
       path: '/',
       name: '首页',
       component: TabsView,
@@ -40,22 +48,7 @@ const options = {
           meta: {
             icon: 'file-ppt'
           },
-          component: () => import('@/pages/customer')
-        },
-        {
-          path: 'parent1',
-          name: '父级路由1',
-          meta: {
-            icon: 'dashboard',
-          },
-          component: BlankView,
-          children: [
-            {
-              path: 'demo1',
-              name: '演示页面1',
-              component: () => import('@/pages/demo'),
-            }
-          ]
+          component: () => import('@/pages/sys/customer')
         },
         {
           path: 'parent2',

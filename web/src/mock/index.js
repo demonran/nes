@@ -1,7 +1,7 @@
 import Mock from 'mockjs'
 import '@/mock/user/login'
 import '@/mock/user/routes'
-import '@/mock/customer'
+// import '@/mock/customer'
 
 // 设置全局延时
 Mock.setup({
