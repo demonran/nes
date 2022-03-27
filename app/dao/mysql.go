@@ -11,9 +11,8 @@ type DBClient struct {
 	db *database.DBEngine
 }
 
-func (cli *DBClient) List(models interface{}) error {
+func (cli *DBClient) FindAll(models interface{}) error {
 	tx := cli.db.DB
-
 	err := tx.Find(models).Error
 	if err != nil {
 		log.Logger.Error(err)
@@ -21,9 +20,18 @@ func (cli *DBClient) List(models interface{}) error {
 	return err
 }
 
-func (cli *DBClient) Create(model interface{}) {
+func (cli *DBClient) Save(entity model.Entity) {
 	tx := cli.db.DB
-	tx.Create(model)
+	id := entity.GetId()
+	if id == "" {
+		tx.Create(entity)
+	}
+	err := tx.Find(&entity, id).Error
+	if err != nil {
+		tx.Create(entity)
+		return
+	}
+	tx.Save(entity)
 }
 
 func NewDbClient(opts *config.Database) *DBClient {

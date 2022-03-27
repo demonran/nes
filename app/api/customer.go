@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"nes/app/model"
 	"nes/pkg/apidocs"
+	"nes/pkg/snowflake"
 )
 
 func (ep *EndPoint) InitCustomerRouter(g *echo.Group) {
@@ -13,11 +14,12 @@ func (ep *EndPoint) InitCustomerRouter(g *echo.Group) {
 }
 
 func (ep *EndPoint) ListCustomers(c echo.Context) error {
-	var customers []model.Customer
-	if err := ep.DB.List(&customers); err != nil {
+	var models []model.Customer
+	err := ep.DB.FindAll(&models)
+	if err != nil {
 		return c.JSON(apidocs.Err(err.Error()))
 	}
-	return c.JSON(apidocs.Success(customers))
+	return c.JSON(apidocs.Success(models))
 }
 
 func (ep *EndPoint) CreateCustomer(c echo.Context) error {
@@ -26,7 +28,8 @@ func (ep *EndPoint) CreateCustomer(c echo.Context) error {
 		return c.JSON(apidocs.Err(err.Error()))
 	}
 
-	ep.DB.Create(customer)
+	customer.SetId(snowflake.NextId())
+	ep.DB.Save(customer)
 
 	return c.JSON(apidocs.Success(*customer))
 }

@@ -9,5 +9,5 @@ Mock.mock(CUSTOMERS, METHOD.GET, () => {
         company: "百度",
         name: "张三",
         mobile: "1234123"
-    },{ID: 11, company: "字节"}]
+    }, {ID: 11, company: "字节"}]
 })
